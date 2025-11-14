@@ -1,0 +1,188 @@
+/* Fondo general y tipografía */
+body {
+  font-family: 'Open Sans', sans-serif;
+  background-color: #fefefe;
+  color: #333;
+  margin: 0;
+  padding: 16px;
+}
+
+/* Encabezado con ícono */
+.encabezado {
+  display: flex;
+  align-items: center;
+  background-color: #e0f7fa;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.encabezado .icono {
+  width: 32px;
+  height: auto;
+  margin-right: 10px;
+}
+
+/* Títulos */
+h1, h2, h3 {
+  color: #4e342e;
+  margin-bottom: 12px;
+}
+
+/* Botones de navegación */
+.menu-principal button {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin: 10px 0;
+  padding: 12px;
+  font-size: 16px;
+  background-color: #aed581;
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.menu-principal button:hover {
+  background-color: #9ccc65;
+}
+
+.icono-btn {
+  width: 24px;
+  height: auto;
+  margin-right: 8px;
+}
+
+/* Formulario general */
+form {
+  margin-bottom: 24px;
+}
+
+form label {
+  display: block;
+  margin-top: 12px;
+  font-weight: bold;
+  color: #4e342e;
+}
+
+form input, form select, form button {
+  width: 100%;
+  margin-top: 6px;
+  padding: 10px;
+  font-size: 14px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+form button {
+  background-color: #4db6ac;
+  color: white;
+  border: none;
+  margin-top: 16px;
+  border-radius: 8px;
+}
+
+form button:hover {
+  background-color: #00897b;
+}
+
+/* Listas de mascotas y tratamientos */
+ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+ul li {
+  background-color: #f1f8e9;
+  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* Imagen decorativa */
+.ilustracion {
+  max-width: 300px;
+  height: auto;
+  display: block;
+  margin: 20px auto;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+/* Mensaje de bienvenida */
+.bienvenida {
+  font-size: 16px;
+  color: #555;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+/* Pie de página institucional */
+footer {
+  text-align: center;
+  font-size: 14px;
+  color: #777;
+  margin-top: 20px;
+}
+
+.foto-grande {
+  width: 200px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+.tarjeta-mascota {
+  margin: 20px 0;
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+}
+
+
+
+/* Foto de perfil circular */
+.foto-perfil {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 2px solid #ccc;
+  margin-bottom: 10px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.foto-perfil.sin-foto {
+  background-color: transparent;
+}
+
+
+
+/* Vista previa de foto al capturar */
+.foto-perfil-preview {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 2px solid #999;
+  margin: 10px auto;
+  display: block;
+  background-color: #fff;
+}
+
+/* Tarjeta de perfil individual */
+.perfil-contenedor {
+  text-align: center;
+  margin: 20px auto;
+  padding: 16px;
+  border-radius: 12px;
+  background-color: #f9fbe7;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  max-width: 320px;
+}
+
+
+
