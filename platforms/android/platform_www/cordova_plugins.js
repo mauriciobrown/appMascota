@@ -260,6 +260,14 @@ cordova.define('cordova/plugin_list', function(require, exports, module) {
       "clobbers": [
         "cordova.plugins.notification.local"
       ]
+    },
+    {
+      "id": "cordova-plugin-splashscreen.SplashScreen",
+      "file": "plugins/cordova-plugin-splashscreen/www/splashscreen.js",
+      "pluginId": "cordova-plugin-splashscreen",
+      "clobbers": [
+        "navigator.splashscreen"
+      ]
     }
   ];
   module.exports.metadata = {
@@ -269,6 +277,7 @@ cordova.define('cordova/plugin_list', function(require, exports, module) {
     "cordova-plugin-file": "8.1.3",
     "cordova-plugin-android-permissions": "1.1.5",
     "cordova-plugin-dialogs": "2.0.2",
-    "cordova-plugin-local-notification": "1.2.3-dev"
+    "cordova-plugin-local-notification": "1.2.3-dev",
+    "cordova-plugin-splashscreen": "6.0.1"
   };
 });

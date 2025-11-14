@@ -2,19 +2,19 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Alertas Próximas</title>
+  <title>Alertas</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
   <header class="encabezado">
     <img src="img/paw-icon.svg" alt="Huella" class="icono">
-    <h1>PetCare Tracker</h1>
+    <h1>Alertas</h1>
   </header>
 
   <main>
-    <h2>Alertas Próximas</h2>
-
+    <!-- <h2>Próximas Alertas</h2>
+  -->
     <section>
       <h3>Cumpleaños de Mascotas</h3>
       <ul id="alertasCumple" class="lista-alertas"></ul>
@@ -26,11 +26,23 @@
     </section>
   </main>
 
-  <footer>
-    <p>&copy; 2025 EcoVida - Proyecto académico</p>
-  </footer>
-
   <script src="cordova.js"></script>
   <script src="js/alertas.js"></script>
+  <script src="js/db.js"></script>
+
+<nav class="menu-principal">
+  <ul>
+    <li><a href="index.html">🏠 Inicio</a></li>
+    <li><a href="mismascotas.html">🐾 Mis Mascotas</a></li>
+    <li><a href="tratamientos.html">💊 Tratamientos</a></li>
+  </ul>
+</nav>
+
+
+  <footer>
+    <p>&copy; 2025 Registro Mascotas</p>
+  </footer>
+
+
 </body>
 </html>

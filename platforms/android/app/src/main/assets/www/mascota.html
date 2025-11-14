@@ -13,33 +13,50 @@
   </header>
 
   <main>
+    <!-- Perfil cargado dinámicamente -->
     <section id="perfilMascota" class="tarjeta-mascota"></section>
 
-<section>
-  <h3>Editar Mascota</h3>
-  <form id="formEditarMascota">
-    <input type="text" id="editNombre" placeholder="Nombre"><br>
-    <input type="text" id="editRaza" placeholder="Raza"><br>
-    <input type="date" id="editFecha"><br>
-    <button type="button" onclick="capturarFoto()">Actualizar Foto</button>
-    <div id="previewFoto"></div>
-    <button type="submit">Guardar Cambios</button>
-  </form>
-</section>
+    <!-- Sección de edición -->
+    <section>
+      <h3>Editar Mascota</h3>
+      <form id="formEditarMascota">
+        <input type="text" id="editNombre" placeholder="Nombre"><br>
+        <input type="text" id="editRaza" placeholder="Raza"><br>
+        <input type="date" id="editFecha"><br>
+        <button type="button" id="btnActualizarFoto">Actualizar Foto</button>
+        <div id="previewFoto"></div>
+        <button type="submit">Guardar Cambios</button>
+      </form>
+    </section>
 
-
-
+    <!-- Sección de tratamientos -->
     <section>
       <h3>Tratamientos Aplicados</h3>
       <ul id="listaTratamientosMascota"></ul>
-    </section>
+    <!--    <button type="button" id="btnBravecto">Agregar Bravecto (3 meses)</button>
+  --> 
+  
+  </section>
   </main>
 
+    <!-- Scripts -->
+  <script src="cordova.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/mascota.js"></script>
+
+  <!-- Navegación principal -->
+  <nav class="menu-principal">
+    <ul>
+      <li><a href="index.html">🏠 Inicio</a></li>
+      <li><a href="mismascotas.html">🐾 Mis Mascotas</a></li>
+      <li><a href="tratamientos.html">💊 Tratamientos</a></li>
+    </ul>
+  </nav>
+
   <footer>
-    <p>&copy; 2025 EcoVida - Proyecto académico</p>
+    <p>&copy; 2025 Registro Mascotas</p>
   </footer>
 
-  <script src="cordova.js"></script>
-  <script src="js/mascota.js"></script>
+
 </body>
 </html>

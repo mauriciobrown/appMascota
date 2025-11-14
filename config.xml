@@ -34,7 +34,7 @@
     <allow-intent href="https://*/*" />
 
     <!-- Metadatos -->
-    <name>PetCareTracker</name>
+    <name>RegistroMascotas</name>
     <description>Asistente de salud para mascotas</description>
     <author email="dev@cordova.apache.org" href="https://cordova.apache.org">
         Apache Cordova Team
@@ -52,4 +52,18 @@
     <preference name="loglevel" value="DEBUG" />
     <preference name="GradlePluginKotlinEnabled" value="true" />
     <preference name="AndroidInsecureFileModeEnabled" value="true" />
+
+
+<platform name="android">
+    <!-- Ícono de la app -->
+    <icon src="res/icon/android/drawable-xhdpi-icon.png" />
+
+    <!-- Splash moderno -->
+    <preference name="AndroidWindowSplashScreenAnimatedIcon" value="res/splash/android/splash.png" />
+    <preference name="AndroidWindowSplashScreenBackgroundColor" value="#FFFFFF" />
+    <preference name="AndroidWindowSplashScreenShowDuration" value="3000" />
+</platform>
+
+
+
 </widget>

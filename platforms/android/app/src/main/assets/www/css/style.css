@@ -185,4 +185,27 @@ footer {
 }
 
 
+.menu-principal {
+  background: #f0f0f0;
+  padding: 10px;
+  text-align: center;
+  border-top: 1px solid #ccc;
+}
+
+.menu-principal ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.menu-principal li {
+  display: inline-block;
+  margin: 0 10px;
+}
+
+.menu-principal a {
+  text-decoration: none;
+  font-weight: bold;
+  color: #333;
+}
 

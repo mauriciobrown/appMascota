@@ -22,11 +22,15 @@
     <feature name="LocalNotification">
         <param name="android-package" value="de.appplant.cordova.plugin.localnotification.LocalNotification" />
     </feature>
+    <feature name="SplashScreen">
+        <param name="android-package" value="org.apache.cordova.splashscreen.SplashScreen" />
+        <param name="onload" value="true" />
+    </feature>
     <allow-navigation href="cdvfile:*" />
     <allow-navigation href="file://*" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
-    <name>PetCareTracker</name>
+    <name>RegistroMascotas</name>
     <description>Asistente de salud para mascotas</description>
     <author email="dev@cordova.apache.org" href="https://cordova.apache.org">
         Apache Cordova Team
@@ -37,7 +41,11 @@
         <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
         <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     </config-file>
+    <icon src="res/icon/android/drawable-xhdpi-icon.png" />
     <preference name="loglevel" value="DEBUG" />
     <preference name="GradlePluginKotlinEnabled" value="true" />
     <preference name="AndroidInsecureFileModeEnabled" value="true" />
+    <preference name="AndroidWindowSplashScreenAnimatedIcon" value="res/splash/android/splash.png" />
+    <preference name="AndroidWindowSplashScreenBackgroundColor" value="#FFFFFF" />
+    <preference name="AndroidWindowSplashScreenShowDuration" value="3000" />
 </widget>

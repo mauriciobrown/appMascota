@@ -30,6 +30,9 @@
     "cordova-plugin-local-notification": {
       "ANDROIDX_CORE_VERSION": "1.12.0",
       "PACKAGE_NAME": "com.ecovida.petcare"
+    },
+    "cordova-plugin-splashscreen": {
+      "PACKAGE_NAME": "com.ecovida.petcare"
     }
   },
   "dependent_plugins": {}

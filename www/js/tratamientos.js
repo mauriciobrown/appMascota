@@ -14,7 +14,7 @@ document.addEventListener("deviceready", function () {
   cargarTratamientos();
 });
 
-// Cargar mascotas en el selector
+// --- Cargar mascotas en el selector ---
 function cargarMascotas() {
   db.executeSql("SELECT * FROM mascotas", [], function (res) {
     const select = document.getElementById("mascotaSelect");
@@ -30,41 +30,48 @@ function cargarMascotas() {
   });
 }
 
-// Guardar tratamiento
+// --- Guardar tratamiento ---
 document.addEventListener("DOMContentLoaded", function () {
-  document.getElementById("formTratamiento").addEventListener("submit", function (e) {
-    e.preventDefault();
+  const form = document.getElementById("formTratamiento");
+  if (form) {
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
 
-    const mascotaId = document.getElementById("mascotaSelect").value;
-    const tipo = document.getElementById("tipoTratamiento").value;
-    const fechaAplicacion = document.getElementById("fechaAplicacion").value;
+      const mascotaId = document.getElementById("mascotaSelect").value;
+      const tipo = document.getElementById("tratamiento").value; // 👈 corregido
+      const fechaAplicacion = document.getElementById("fechaAplicacion").value;
 
-    if (!mascotaId || !tipo || !fechaAplicacion) {
-      alert("Completa todos los campos.");
-      return;
-    }
+      if (!mascotaId || !tipo || !fechaAplicacion) {
+        alert("Completa todos los campos.");
+        return;
+      }
 
-    const frecuencia = tipo === "Rabia" ? 365 : 90;
+      // Frecuencia según tipo (ajusta según tu lógica)
+      let frecuencia = 90;
+      if (tipo === "vacuna") frecuencia = 365;
+      if (tipo === "desparasitacion") frecuencia = 180;
+      if (tipo === "bravecto") frecuencia = 90;
 
-    db.transaction(function (tx) {
-      tx.executeSql(
-        "INSERT INTO tratamientos (mascota_id, tipo, fecha_aplicacion, frecuencia_dias) VALUES (?, ?, ?, ?)",
-        [mascotaId, tipo, fechaAplicacion, frecuencia],
-        function () {
-          alert("Tratamiento guardado.");
-          programarAlerta(mascotaId, tipo, fechaAplicacion, frecuencia);
-          document.getElementById("formTratamiento").reset();
-          cargarTratamientos();
-        },
-        function (error) {
-          console.error("Error al guardar tratamiento:", error.message);
-        }
-      );
+      db.transaction(function (tx) {
+        tx.executeSql(
+          "INSERT INTO tratamientos (mascota_id, tipo, fecha_aplicacion, frecuencia_dias) VALUES (?, ?, ?, ?)",
+          [mascotaId, tipo, fechaAplicacion, frecuencia],
+          function () {
+            alert("Tratamiento guardado.");
+            programarAlerta(mascotaId, tipo, fechaAplicacion, frecuencia);
+            document.getElementById("formTratamiento").reset();
+            cargarTratamientos();
+          },
+          function (error) {
+            console.error("Error al guardar tratamiento:", error.message);
+          }
+        );
+      });
     });
-  });
+  }
 });
 
-// Mostrar tratamientos
+// --- Mostrar tratamientos ---
 function cargarTratamientos() {
   db.executeSql(
     `SELECT t.*, m.nombre AS mascota 
@@ -86,29 +93,34 @@ function cargarTratamientos() {
         `;
         lista.appendChild(item);
       }
+    },
+    function (error) {
+      console.error("Error al cargar tratamientos:", error.message);
     }
   );
 }
 
-// Calcular próxima fecha
+// --- Calcular próxima fecha ---
 function calcularProximaFecha(fecha, dias) {
   const f = new Date(fecha);
   f.setDate(f.getDate() + dias);
   return f.toISOString().split("T")[0];
 }
 
-// Programar alerta 10 días antes
+// --- Programar alerta 10 días antes ---
 function programarAlerta(mascotaId, tipo, fechaAplicacion, frecuencia) {
   db.executeSql("SELECT nombre FROM mascotas WHERE id = ?", [mascotaId], function (res) {
-    const nombre = res.rows.item(0).nombre;
-    const fechaProxima = new Date(fechaAplicacion);
-    fechaProxima.setDate(fechaProxima.getDate() + frecuencia - 10);
+    if (res.rows.length > 0) {
+      const nombre = res.rows.item(0).nombre;
+      const fechaProxima = new Date(fechaAplicacion);
+      fechaProxima.setDate(fechaProxima.getDate() + frecuencia - 10);
 
-    cordova.plugins.notification.local.schedule({
-      title: "Tratamiento próximo",
-      text: `A ${nombre} le toca ${tipo} en 10 días.`,
-      trigger: { at: fechaProxima },
-      foreground: true
-    });
+      cordova.plugins.notification.local.schedule({
+        title: "Tratamiento próximo",
+        text: `A ${nombre} le toca ${tipo} en 10 días.`,
+        trigger: { at: fechaProxima },
+        foreground: true
+      });
+    }
   });
 }

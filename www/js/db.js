@@ -1,5 +1,3 @@
-// www/js/db.js
-
 var db = null;
 
 document.addEventListener('deviceready', function () {
