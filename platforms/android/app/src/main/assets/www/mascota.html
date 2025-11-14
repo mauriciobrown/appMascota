@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Perfil de Mascota</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="encabezado">
+    <img src="img/dog-icon.svg" alt="Mascota" class="icono">
+    <h1>Perfil de Mascota</h1>
+  </header>
+
+  <main>
+    <section id="perfilMascota" class="tarjeta-mascota"></section>
+
+<section>
+  <h3>Editar Mascota</h3>
+  <form id="formEditarMascota">
+    <input type="text" id="editNombre" placeholder="Nombre"><br>
+    <input type="text" id="editRaza" placeholder="Raza"><br>
+    <input type="date" id="editFecha"><br>
+    <button type="button" onclick="capturarFoto()">Actualizar Foto</button>
+    <div id="previewFoto"></div>
+    <button type="submit">Guardar Cambios</button>
+  </form>
+</section>
+
+
+
+    <section>
+      <h3>Tratamientos Aplicados</h3>
+      <ul id="listaTratamientosMascota"></ul>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 EcoVida - Proyecto académico</p>
+  </footer>
+
+  <script src="cordova.js"></script>
+  <script src="js/mascota.js"></script>
+</body>
+</html>

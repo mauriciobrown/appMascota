@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Registrar Tratamiento</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="encabezado">
+    <img src="img/paw-icon.svg" alt="Huella" class="icono">
+    <h1>PetCare Tracker</h1>
+  </header>
+
+  <main>
+    <h2>Registrar Tratamiento</h2>
+    <form id="formTratamiento">
+      <label for="mascotaSelect">Mascota:</label>
+      <select id="mascotaSelect" required></select>
+
+      <label for="tipoTratamiento">Tipo de tratamiento:</label>
+      <select id="tipoTratamiento" required>
+        <option value="Rabia">Vacuna Rabia (1 año)</option>
+        <option value="Anti-parásitos">Anti-parásitos (3 meses)</option>
+      </select>
+
+      <label for="fechaAplicacion">Fecha de aplicación:</label>
+      <input type="date" id="fechaAplicacion" required>
+
+      <button type="submit">Guardar Tratamiento</button>
+    </form>
+
+    <section>
+      <h3>Tratamientos Registrados</h3>
+      <ul id="listaTratamientos"></ul>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 EcoVida - Proyecto académico</p>
+  </footer>
+
+  <script src="cordova.js"></script>
+  <script src="js/tratamientos.js"></script>
+</body>
+</html>

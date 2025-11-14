@@ -1,0 +1,33 @@
+{
+  "prepare_queue": {
+    "installed": [],
+    "uninstalled": []
+  },
+  "config_munge": {
+    "files": {}
+  },
+  "installed_plugins": {
+    "cordova-plugin-camera": {
+      "ANDROIDX_CORE_VERSION": "1.6.+",
+      "PACKAGE_NAME": "com.ecovida.petcare"
+    },
+    "cordova-plugin-device": {
+      "PACKAGE_NAME": "com.ecovida.petcare"
+    },
+    "cordova-plugin-local-notification": {
+      "ANDROIDX_CORE_VERSION": "1.12.0",
+      "PACKAGE_NAME": "com.ecovida.petcare"
+    },
+    "cordova-sqlite-storage": {
+      "PACKAGE_NAME": "com.ecovida.petcare"
+    },
+    "cordova-plugin-file": {
+      "ANDROIDX_WEBKIT_VERSION": "1.4.0",
+      "PACKAGE_NAME": "com.ecovida.petcare"
+    },
+    "cordova-plugin-android-permissions": {
+      "PACKAGE_NAME": "com.ecovida.petcare"
+    }
+  },
+  "dependent_plugins": {}
+}
