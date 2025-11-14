@@ -18,7 +18,7 @@
         <provider android:authorities="${applicationId}.localnotifications.provider" android:exported="false" android:grantUriPermissions="true" android:name="de.appplant.cordova.plugin.localnotification.util.PluginFileProvider">
             <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/shared_files_provider_paths" />
         </provider>
-        <activity android:excludeFromRecents="true" android:exported="false" android:name="de.appplant.cordova.plugin.localnotification.NotificationClickActivity" android:taskAffinity="" />
+        <activity android:excludeFromRecents="true" android:launchMode="singleTask" android:name="de.appplant.cordova.plugin.localnotification.ClickActivity" android:taskAffinity="" />
         <receiver android:exported="false" android:name="de.appplant.cordova.plugin.localnotification.receiver.TriggerReceiver" />
         <receiver android:exported="false" android:name="de.appplant.cordova.plugin.localnotification.receiver.ClearReceiver" />
         <receiver android:exported="false" android:name="de.appplant.cordova.plugin.localnotification.receiver.RestoreReceiver">
@@ -44,6 +44,9 @@
             <data android:mimeType="image/*" android:scheme="content" />
         </intent>
     </queries>
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />

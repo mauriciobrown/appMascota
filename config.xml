@@ -1,15 +1,55 @@
 <?xml version='1.0' encoding='utf-8'?>
 <widget id="com.ecovida.petcare" version="1.0.0"
-        xmlns="http://www.w3.org/ns/widgets"
-        xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    xmlns="http://www.w3.org/ns/widgets"
+    xmlns:cdv="http://cordova.apache.org/ns/1.0">
 
-  <name>PetCareTracker</name>
-  <description>Asistente de salud para mascotas</description>
-  <author email="dev@cordova.apache.org" href="https://cordova.apache.org">
-    Apache Cordova Team
-  </author>
+    <!-- Plugins declarados -->
+    <feature name="Camera">
+        <param name="android-package" value="org.apache.cordova.camera.CameraLauncher" />
+    </feature>
+    <feature name="Device">
+        <param name="android-package" value="org.apache.cordova.device.Device" />
+    </feature>
+    <feature name="SQLitePlugin">
+        <param name="android-package" value="io.sqlc.SQLitePlugin" />
+    </feature>
+    <feature name="File">
+        <param name="android-package" value="org.apache.cordova.file.FileUtils" />
+        <param name="onload" value="true" />
+    </feature>
+    <feature name="Permissions">
+        <param name="android-package" value="com.android.plugins.Permissions" />
+    </feature>
+    <feature name="Notification">
+        <param name="android-package" value="org.apache.cordova.dialogs.Notification" />
+    </feature>
+    <feature name="LocalNotification">
+        <param name="android-package" value="de.appplant.cordova.plugin.localnotification.LocalNotification" />
+    </feature>
 
-  <content src="index.html" />
-  <allow-intent href="http://*/*" />
-  <allow-intent href="https://*/*" />
+    <!-- Navegación y permisos -->
+    <allow-navigation href="cdvfile:*" />
+    <allow-navigation href="file://*" />
+    <allow-intent href="http://*/*" />
+    <allow-intent href="https://*/*" />
+
+    <!-- Metadatos -->
+    <name>PetCareTracker</name>
+    <description>Asistente de salud para mascotas</description>
+    <author email="dev@cordova.apache.org" href="https://cordova.apache.org">
+        Apache Cordova Team
+    </author>
+    <content src="index.html" />
+
+    <!-- Permisos Android -->
+    <config-file parent="/manifest" target="AndroidManifest.xml" xmlns:android="http://schemas.android.com/apk/res/android">
+        <uses-permission android:name="android.permission.CAMERA" />
+        <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+        <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    </config-file>
+
+    <!-- Preferencias -->
+    <preference name="loglevel" value="DEBUG" />
+    <preference name="GradlePluginKotlinEnabled" value="true" />
+    <preference name="AndroidInsecureFileModeEnabled" value="true" />
 </widget>

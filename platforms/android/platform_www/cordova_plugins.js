@@ -41,14 +41,6 @@ cordova.define('cordova/plugin_list', function(require, exports, module) {
       ]
     },
     {
-      "id": "cordova-plugin-local-notification.LocalNotification",
-      "file": "plugins/cordova-plugin-local-notification/www/local-notification.js",
-      "pluginId": "cordova-plugin-local-notification",
-      "clobbers": [
-        "cordova.plugins.notification.local"
-      ]
-    },
-    {
       "id": "cordova-sqlite-storage.SQLitePlugin",
       "file": "plugins/cordova-sqlite-storage/www/SQLitePlugin.js",
       "pluginId": "cordova-sqlite-storage",
@@ -244,14 +236,39 @@ cordova.define('cordova/plugin_list', function(require, exports, module) {
       "clobbers": [
         "cordova.plugins.permissions"
       ]
+    },
+    {
+      "id": "cordova-plugin-dialogs.notification",
+      "file": "plugins/cordova-plugin-dialogs/www/notification.js",
+      "pluginId": "cordova-plugin-dialogs",
+      "merges": [
+        "navigator.notification"
+      ]
+    },
+    {
+      "id": "cordova-plugin-dialogs.notification_android",
+      "file": "plugins/cordova-plugin-dialogs/www/android/notification.js",
+      "pluginId": "cordova-plugin-dialogs",
+      "merges": [
+        "navigator.notification"
+      ]
+    },
+    {
+      "id": "cordova-plugin-local-notification.LocalNotification",
+      "file": "plugins/cordova-plugin-local-notification/www/local-notification.js",
+      "pluginId": "cordova-plugin-local-notification",
+      "clobbers": [
+        "cordova.plugins.notification.local"
+      ]
     }
   ];
   module.exports.metadata = {
     "cordova-plugin-camera": "8.0.0",
     "cordova-plugin-device": "3.0.0",
-    "cordova-plugin-local-notification": "1.2.2",
-    "cordova-sqlite-storage": "7.0.0",
+    "cordova-sqlite-storage": "7.0.1-dev",
     "cordova-plugin-file": "8.1.3",
-    "cordova-plugin-android-permissions": "1.1.5"
+    "cordova-plugin-android-permissions": "1.1.5",
+    "cordova-plugin-dialogs": "2.0.2",
+    "cordova-plugin-local-notification": "1.2.3-dev"
   };
 });

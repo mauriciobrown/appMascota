@@ -33,6 +33,15 @@ document.addEventListener("deviceready", function () {
   cargarMascotas();
 }, false);
 
+// Utilidad para convertir rutas a algo que el WebView acepte
+function urlParaWebView(ruta) {
+  if (!ruta) return "";
+  if (window.IonicWebView && typeof window.IonicWebView.convertFileSrc === "function") {
+    return window.IonicWebView.convertFileSrc(ruta);
+  }
+  return ruta; // si ya es cdvfile:// o http://
+}
+
 // Captura de foto y copia a ruta accesible
 function capturarFoto() {
   navigator.camera.getPicture(function (imageURI) {
@@ -46,9 +55,10 @@ function capturarFoto() {
           dirEntry,
           nombreArchivo,
           function (newFileEntry) {
-            fotoRuta = newFileEntry.nativeURL;
+            fotoRuta = newFileEntry.toURL(); // cdvfile://
             console.log("Imagen copiada a:", fotoRuta);
-            document.getElementById("previewFoto").innerHTML = `<img src="${fotoRuta}" class="foto-perfil-preview">`;
+            const src = urlParaWebView(fotoRuta);
+            document.getElementById("previewFoto").innerHTML = `<img src="${src}" class="foto-perfil-preview">`;
           },
           function (error) {
             console.error("Error al copiar imagen:", error);
@@ -132,14 +142,16 @@ function cargarMascotas() {
       const m = res.rows.item(i);
       console.log("Ruta recuperada desde BD:", m.foto);
 
-      const tieneFoto = m.foto && m.foto.length > 10;
+      const src = urlParaWebView(m.foto);
+      const tieneFoto = src && src.length > 10;
+
       const item = document.createElement("li");
       item.classList.add("tarjeta-mascota");
 
       item.innerHTML = `
         <div class="perfil-contenedor">
           ${tieneFoto
-            ? `<img src="${m.foto}" class="foto-perfil">`
+            ? `<img src="${src}" class="foto-perfil">`
             : `<div class="foto-perfil sin-foto"></div>`}
           <strong>${m.nombre}</strong><br>
           ${m.raza} - Nacido: ${m.fecha_nacimiento}<br>

@@ -44,7 +44,7 @@ exports._commonOptions = {
     trigger: null,
     meta: {
         plugin:  'cordova-plugin-local-notification',
-        version: '1.2.2'
+        version: '1.2.3-dev' // Current plugin version
     }
 }
 
@@ -193,11 +193,14 @@ channel.onCordovaReady.subscribe(function () {
         console.log("LocalNotification: onCordovaInfoReady");
 
         // Set defaults
-        exports._defaults = {
-            ...exports._commonOptions,
+        // To be compatible with Android 7 and a not updated WebView,
+        // Object.assign is used instead of a spread ... in object literals
+        exports._defaults = Object.assign(
+            {},
+            exports._commonOptions,
             // Platform specific defaults
-            ...(device.platform == 'Android' ? exports._androidSpecificOptions : exports._iOSSpecificOptions)
-        };
+            (device.platform == 'Android' ? exports._androidSpecificOptions : exports._iOSSpecificOptions)
+        );
 
         exports._setLaunchDetails();
     });
@@ -737,7 +740,9 @@ exports._optionsWithDefaults = function (options) {
     // Create a deep copy of defaults, so objects like trigger
     // are copied and not referenced and changes on them would
     // not impact the defaults
-    return {...exports._deepCopy(exports._defaults), ...options}
+    // To be compatible with Android 7 and a not updated WebView,
+    // Object.assign is used instead of a spread ... in object literals
+    return Object.assign({}, exports._deepCopy(exports._defaults), options)
 }
 
 /**

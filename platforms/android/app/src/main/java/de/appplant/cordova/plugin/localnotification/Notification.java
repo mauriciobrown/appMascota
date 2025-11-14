@@ -54,8 +54,8 @@ import java.util.Set;
 import static android.app.PendingIntent.FLAG_CANCEL_CURRENT;
 import static android.os.Build.VERSION.SDK_INT;
 
-import de.appplant.cordova.plugin.localnotification.OptionsTrigger;
 import de.appplant.cordova.plugin.localnotification.action.Action;
+import de.appplant.cordova.plugin.localnotification.action.ActionGroup;
 import de.appplant.cordova.plugin.localnotification.receiver.ClearReceiver;
 import de.appplant.cordova.plugin.localnotification.receiver.TriggerReceiver;
 import de.appplant.cordova.plugin.localnotification.trigger.TriggerHandler;
@@ -68,7 +68,7 @@ import de.appplant.cordova.plugin.localnotification.util.AssetUtil;
  * Wrapper class around OS notification class. Handles basic operations
  * like show, delete, cancel for a single local notification instance.
  */
-public final class Notification {
+public class Notification {
 
     private static final String TAG = "Notification";
 
@@ -78,13 +78,13 @@ public final class Notification {
     }
 
     // Extra key for the id
-    public static final String EXTRA_ID = "NOTIFICATION_ID";
+    public static String EXTRA_ID = "NOTIFICATION_ID";
 
     // Application context passed by constructor
-    private final Context context;
+    private Context context;
 
     // Notification options passed by JS
-    private final Options options;
+    private Options options;
 
     /**
      * Trigger handler for trigger.at/in/every
@@ -97,7 +97,7 @@ public final class Notification {
      * @param options Parsed notification options.
      * @param builder Pre-configured notification builder.
      */
-    Notification(Context context, JSONObject options) {
+    public Notification(Context context, JSONObject options) {
         this.context = context;
         this.options = new Options(context, options);
         OptionsTrigger optionsTrigger = this.options.getOptionsTrigger();
@@ -178,7 +178,7 @@ public final class Notification {
 
         // No next trigger date available, all triggers are done
         // The notification will not be removed from SharedPreferences.
-        // This will always do the ClearReceiver and NotificationClickActivity
+        // This will always do the ClearReceiver and ClickActivity
         if (triggerDate == null) {
             Log.d(TAG, "No next trigger date available" +
                 ", notificationId=" + options.getId() +
@@ -211,7 +211,7 @@ public final class Notification {
         Manager.createChannel(context, options);
 
         // Store notification data for restoration
-        // Needed for NotificationClickActivity and ClearReceiver
+        // Needed for ClickActivity and ClearReceiver
         storeInSharedPreferences();
 
         // Date is in the past, show directly
@@ -308,7 +308,7 @@ public final class Notification {
      * Update the notification properties.
      * @param updates The properties to update.
      */
-    void update(JSONObject updates) {
+    public void update(JSONObject updates) {
         Log.d(TAG, "Update notification, options=" + options + ", updates=" + updates);
 
         // Update options of notification
@@ -321,6 +321,28 @@ public final class Notification {
         if (getType() == Type.TRIGGERED) show(true);
     }
 
+    /**
+     * Handle when the notification was clicked.
+     */
+    public void handleClick() {
+        Log.d(TAG, "Handle click, options=" + options);
+        
+        // Fire notification click event to JS
+        LocalNotification.fireEvent("click", this);
+
+        // Clear notification from statusbar if it should not be ongoing
+        // This will also remove the notification from the SharedPreferences
+        // if it is the last one
+        if (!options.isAndroidOngoing()) clear();
+
+        // Launch the app if required
+        if (options.isLaunch()) LocalNotification.launchApp(context);
+    }
+
+    public void handleActionClick(Intent intent, String actionId) {
+        options.getActionsGroup().getActionById(actionId).handleClick(intent, this);
+    }
+    
     /**
      * Clears the notification from Statusbar. If the notification was the last one,
      * the notification will be removed from SharedPreferences.
@@ -768,31 +790,28 @@ public final class Notification {
      * Will bring the app to foreground.
      */
     private void setContentIntent(NotificationCompat.Builder builder) {
-        Intent clickIntent = new Intent(context, NotificationClickActivity.class)
+        // Route content tap to a transparent activity to avoid trampoline and still run plugin logic
+        Intent clickIntent = new Intent(context, ClickActivity.class)
             .putExtra(Notification.EXTRA_ID, options.getId())
-            .putExtra(Action.EXTRA_ID, Action.CLICK_ACTION_ID)
-            .putExtra(Options.EXTRA_LAUNCH, options.isLaunch());
+            .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
-        // Set the Activity to start in a new, empty task.
-        clickIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-
-        // Create the PendingIntent
-        PendingIntent clickPendingIntent = PendingIntent.getActivity(context,
-            // Each click intent have to get a unique request code, so they don't overwrite each other
+        PendingIntent contentPendingIntent = PendingIntent.getActivity(
+            context,
             Manager.getRandomRequestCode(),
-            clickIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+            clickIntent,
+            PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
 
-        builder.setContentIntent(clickPendingIntent);
+        builder.setContentIntent(contentPendingIntent);
     }
 
     /**
      * Add actions to the builder if there are any.
      */
     private void addActions(NotificationCompat.Builder builder) {
-        Action[] actions = options.getActions();
-        if (actions == null) return;
+        ActionGroup actionGroup = options.getActionsGroup();
+        if (actionGroup == null) return;
 
-        for (Action action : actions) {
+        for (Action action : actionGroup.getActions()) {
             addAction(builder, action);
         }
     }
@@ -801,16 +820,19 @@ public final class Notification {
      * Add an action to the builder.
      */
     private void addAction(NotificationCompat.Builder builder, Action action) {
-        Intent actionClickIntent = new Intent(context, NotificationClickActivity.class)
+        // Route content tap to a transparent activity to avoid trampoline and still run plugin logic
+        Intent actionClickIntent = new Intent(context, ClickActivity.class)
             .putExtra(Notification.EXTRA_ID, options.getId())
             .putExtra(Action.EXTRA_ID, action.getId())
-            .putExtra(Options.EXTRA_LAUNCH, action.isLaunchingApp())
-            .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_HISTORY);
+            .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
-        PendingIntent actionClickPendingIntent = PendingIntent.getActivity(context,
-            // Each action intent have to get a unique request code, so they don't overwrite each other
+        PendingIntent actionClickPendingIntent = PendingIntent.getActivity(
+            context,
             Manager.getRandomRequestCode(),
-            actionClickIntent, PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+            actionClickIntent,
+            // Input actions need FLAG_MUTABLE, otherwise it would give the error
+            // "PendingIntents attached to actions with remote inputs must be mutable"
+            (action.isWithInput() ? PendingIntent.FLAG_MUTABLE : PendingIntent.FLAG_IMMUTABLE) | PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationCompat.Action.Builder actionBuilder = new NotificationCompat.Action.Builder(
                 action.getIcon(), action.getTitle(), actionClickPendingIntent);

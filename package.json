@@ -15,7 +15,9 @@
   "devDependencies": {
     "cordova-android": "^14.0.1",
     "cordova-plugin-android-permissions": "^1.1.5",
+    "cordova-plugin-dialogs": "^2.0.2",
     "cordova-plugin-file": "^8.1.3",
+    "cordova-plugin-local-notification": "github:katzer/cordova-plugin-local-notifications",
     "cordova-sqlite-storage": "github:xpbrew/cordova-sqlite-storage"
   },
   "cordova": {
@@ -25,10 +27,13 @@
     "plugins": {
       "cordova-plugin-camera": {},
       "cordova-plugin-device": {},
-      "cordova-plugin-local-notification": {},
       "cordova-sqlite-storage": {},
       "cordova-plugin-file": {},
-      "cordova-plugin-android-permissions": {}
+      "cordova-plugin-android-permissions": {},
+      "cordova-plugin-dialogs": {},
+      "cordova-plugin-local-notification": {
+        "ANDROIDX_CORE_VERSION": "1.12.0"
+      }
     }
   }
 }
