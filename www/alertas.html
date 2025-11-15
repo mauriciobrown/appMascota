@@ -13,6 +13,12 @@
   </header>
 
   <main>
+
+  <section>
+      <h3>Prueba de Notificación</h3>
+      <button type="button" id="btnTestAlerta">🔔 Probar Alerta</button>
+  </section>
+
     <!-- <h2>Próximas Alertas</h2>
   -->
     <section>
@@ -30,6 +36,7 @@
   <script src="js/alertas.js"></script>
   <script src="js/db.js"></script>
 
+
 <nav class="menu-principal">
   <ul>
     <li><a href="index.html">🏠 Inicio</a></li>
@@ -39,10 +46,16 @@
 </nav>
 
 
-  <footer>
-    <p>&copy; 2025 Registro Mascotas</p>
-  </footer>
+<footer>
+  <p>&copy; 2025 Registro Mascotas</p>
+  <p id="versionInfo"></p>
+</footer>
 
-
+<script type="module">
+  import AppVersion from "./js/version.js";
+  document.getElementById("versionInfo").textContent =
+    `Versión ${AppVersion.version} (${AppVersion.fecha})`;
+</script>
 </body>
 </html>
+

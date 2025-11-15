@@ -20,12 +20,21 @@
     <section>
       <h3>Editar Mascota</h3>
       <form id="formEditarMascota">
-        <input type="text" id="editNombre" placeholder="Nombre"><br>
-        <input type="text" id="editRaza" placeholder="Raza"><br>
-        <input type="date" id="editFecha"><br>
+        <input type="text" id="editNombre" placeholder="Nombre" required><br>
+        <input type="text" id="editRaza" placeholder="Raza" required><br>
+        <input type="date" id="editFecha" required><br>
+
+        <!-- Botón para actualizar foto -->
+         <input type="file" id="inputFotoFallback" accept="image/*" style="display:none;">
+ <!-- 
         <button type="button" id="btnActualizarFoto">Actualizar Foto</button>
-        <div id="previewFoto"></div>
+        -->
+        <button type="button" id="btnTomarFoto">Actualizar Foto</button>
+          <!--      <div id="previewFoto"></div>
+-->
+
         <button type="submit">Guardar Cambios</button>
+        <button type="button" id="btnEliminarMascota" class="btn-peligro">🗑️ Eliminar Mascota</button>
       </form>
     </section>
 
@@ -33,30 +42,31 @@
     <section>
       <h3>Tratamientos Aplicados</h3>
       <ul id="listaTratamientosMascota"></ul>
-    <!--    <button type="button" id="btnBravecto">Agregar Bravecto (3 meses)</button>
-  --> 
-  
-  </section>
+    </section>
   </main>
 
-    <!-- Scripts -->
   <script src="cordova.js"></script>
   <script src="js/db.js"></script>
   <script src="js/mascota.js"></script>
 
-  <!-- Navegación principal -->
   <nav class="menu-principal">
     <ul>
       <li><a href="index.html">🏠 Inicio</a></li>
       <li><a href="mismascotas.html">🐾 Mis Mascotas</a></li>
       <li><a href="tratamientos.html">💊 Tratamientos</a></li>
+      <li><a href="mantenedor_tratamientos.html">🛠️ Mantenedor</a></li>
     </ul>
   </nav>
 
-  <footer>
-    <p>&copy; 2025 Registro Mascotas</p>
-  </footer>
+<footer>
+  <p>&copy; 2025 Registro Mascotas</p>
+  <p id="versionInfo"></p>
+</footer>
 
-
+<script type="module">
+  import AppVersion from "./js/version.js";
+  document.getElementById("versionInfo").textContent =
+    `Versión ${AppVersion.version} (${AppVersion.fecha})`;
+</script>
 </body>
 </html>

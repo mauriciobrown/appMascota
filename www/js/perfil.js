@@ -11,14 +11,14 @@ document.addEventListener("deviceready", function () {
       cordova.plugins.permissions.READ_EXTERNAL_STORAGE,
       cordova.plugins.permissions.WRITE_EXTERNAL_STORAGE
     ],
-    function (status) {
-      if (!status.hasPermission) {
-        alert("La app necesita permisos para funcionar correctamente.");
-      }
-    },
-    function () {
-      alert("Error al solicitar permisos.");
-    }
+  //  function (status) {
+    //  if (!status.hasPermission) {
+      //  alert("La app necesita permisos para funcionar correctamente.");
+    //  }
+    //} ,
+    // function () {
+     // alert("Error al solicitar permisos.");
+   // }
   );
 
   // Abrir base de datos

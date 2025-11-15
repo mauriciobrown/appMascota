@@ -2,45 +2,35 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Tratamientos</title>
+  <title>Mantenedor de Tratamientos</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
   <header class="encabezado">
-    <img src="img/paw-icon.svg" alt="Huella" class="icono">
-    <h1>Tratamientos</h1>
+    <img src="img/paw-icon.svg" alt="Config" class="icono">
+    <h1>Mantenedor de Tratamientos</h1>
   </header>
 
   <main>
-    <h2>Registrar Tratamiento</h2>
-    <form id="formTratamiento">
-      <label for="mascotaSelect">Mascota:</label>
-      <select id="mascotaSelect" required></select>
-
-      <label for="tratamientoSelect">Tratamiento:</label>
-      <select id="tratamientoSelect" required></select>
-
-      <div id="frecuenciaContainer" style="display:none;">
-        <label for="frecuenciaManual">Frecuencia (días):</label>
-        <input type="number" id="frecuenciaManual" min="1">
-      </div>
-
-      <label for="fechaAplicacion">Fecha de aplicación:</label>
-      <input type="date" id="fechaAplicacion" required>
-
-      <button type="submit">Guardar Tratamiento</button>
-    </form>
+    <section>
+      <h2>Tratamientos disponibles</h2>
+      <ul id="listaCatalogo"></ul>
+    </section>
 
     <section>
-      <h3>Tratamientos Registrados</h3>
-      <ul id="listaTratamientos"></ul>
+      <h2>Agregar nuevo tratamiento</h2>
+      <form id="formNuevoTratamiento">
+        <input type="text" id="nuevoNombre" placeholder="Nombre del tratamiento" required>
+        <input type="number" id="nuevoFrecuencia" placeholder="Frecuencia en días (opcional)">
+        <button type="submit">Agregar</button>
+      </form>
     </section>
   </main>
 
   <script src="cordova.js"></script>
   <script src="js/db.js"></script>
-  <script src="js/tratamientos.js"></script>
+  <script src="js/mantenedor_tratamientos.js"></script>
 
   <nav class="menu-principal">
     <ul>

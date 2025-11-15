@@ -33,11 +33,19 @@
     </p>
     <img src="img/pets-happy.png" alt="Mascotas felices" class="ilustracion">
   </main>
-
-  <footer>
-    <p>&copy; 2025 Registro Mascotas</p>
-  </footer>
-
   <script src="cordova.js"></script>
+
+
+
+<footer>
+  <p>&copy; 2025 Registro Mascotas</p>
+  <p id="versionInfo"></p>
+</footer>
+
+<script type="module">
+  import AppVersion from "./js/version.js";
+  document.getElementById("versionInfo").textContent =
+    `Versión ${AppVersion.version} (${AppVersion.fecha})`;
+</script>
 </body>
 </html>

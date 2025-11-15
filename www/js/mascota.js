@@ -1,204 +1,276 @@
-// --- Utilidad para convertir rutas ---
-function urlParaWebView(ruta) {
-  if (!ruta) return "";
-  if (window.IonicWebView && typeof window.IonicWebView.convertFileSrc === "function") {
-    return window.IonicWebView.convertFileSrc(ruta);
-  }
-  return ruta;
-}
+var db = null;
+var idMascota = null;
 
-// --- Cargar datos de una mascota ---
-function cargarMascota(idMascota) {
-  db.executeSql("SELECT * FROM mascotas WHERE id = ?", [idMascota], function (res) {
-    if (res.rows.length > 0) {
-      const m = res.rows.item(0);
-      const src = urlParaWebView(m.foto);
+document.addEventListener("deviceready", function () {
+  db = window.sqlitePlugin.openDatabase({ name: "petcare.db", location: "default" });
 
-      document.getElementById("perfilMascota").innerHTML = `
-        <div class="perfil-contenedor">
-          ${src ? `<img src="${src}" class="foto-perfil">` : `<div class="foto-perfil sin-foto"></div>`}
-          <strong>${m.nombre}</strong><br>
-          ${m.raza} - Nacido: ${m.fecha_nacimiento}
-        </div>
-      `;
+  const params = new URLSearchParams(window.location.search);
+  idMascota = parseInt(params.get("id"), 10);
 
-      // Rellenar formulario
-      document.getElementById("editNombre").value = m.nombre || "";
-      document.getElementById("editRaza").value = m.raza || "";
-      document.getElementById("editFecha").value = m.fecha_nacimiento || "";
-
-      // Cargar tratamientos
-      cargarTratamientosMascota(idMascota);
-    }
-  }, function (err) {
-    console.error("Error al cargar mascota:", err.message);
-  });
-}
-
-// --- Actualizar foto ---
-function actualizarFoto(idMascota) {
-  navigator.camera.getPicture(function (imageURI) {
-    window.resolveLocalFileSystemURL(imageURI, function (fileEntry) {
-      const nombreArchivo = "perfil_" + Date.now() + ".jpg";
-      window.resolveLocalFileSystemURL(cordova.file.externalDataDirectory, function (dirEntry) {
-        fileEntry.copyTo(dirEntry, nombreArchivo, function (newFileEntry) {
-          const nuevaRuta = newFileEntry.toURL();
-          const src = urlParaWebView(nuevaRuta);
-
-          db.transaction(function (tx) {
-            tx.executeSql(
-              "UPDATE mascotas SET foto = ? WHERE id = ?",
-              [nuevaRuta, idMascota],
-              function () {
-                console.log("Foto actualizada en BD:", nuevaRuta);
-                document.getElementById("previewFoto").innerHTML =
-                  `<img src="${src}" class="foto-perfil-preview">`;
-                cargarMascota(idMascota);
-              },
-              function (error) {
-                console.error("Error al actualizar foto:", error.message);
-              }
-            );
-          });
-        }, function (e) {
-          console.error("Error al copiar imagen:", e.message);
-        });
-      }, function (e) {
-        console.error("Error al acceder a directorio destino:", e.message);
-      });
-    }, function (e) {
-      console.error("Error al resolver URI:", e.message);
-    });
-  }, function (message) {
-    alert("Error al capturar foto: " + message);
-  }, {
-    quality: 50,
-    destinationType: Camera.DestinationType.FILE_URI,
-    encodingType: Camera.EncodingType.JPEG,
-    mediaType: Camera.MediaType.PICTURE,
-    targetWidth: 300,
-    targetHeight: 300,
-    sourceType: Camera.PictureSourceType.CAMERA,
-    correctOrientation: true
-  });
-}
-
-// --- Guardar cambios básicos ---
-function guardarCambios(idMascota) {
-  const nombre = document.getElementById("editNombre").value.trim();
-  const raza = document.getElementById("editRaza").value.trim();
-  const fecha = document.getElementById("editFecha").value;
-
-  if (!nombre || !raza || !fecha) {
-    alert("Completa todos los campos.");
+  if (!idMascota) {
+    console.warn("Mascota no especificada. Este script solo aplica en perfil de mascota.");
     return;
   }
 
-  db.transaction(function (tx) {
-    tx.executeSql(
-      "UPDATE mascotas SET nombre = ?, raza = ?, fecha_nacimiento = ? WHERE id = ?",
-      [nombre, raza, fecha, idMascota],
-      function () {
-        alert("Datos actualizados correctamente.");
-        cargarMascota(idMascota);
-      },
-      function (error) {
-        console.error("Error al actualizar mascota:", error.message);
-      }
-    );
-  });
-}
+  cargarPerfilMascota(idMascota);
+  cargarTratamientosMascota(idMascota);
 
-// --- Tratamientos: insertar y listar ---
-function agregarTratamiento(idMascota, tipo, frecuenciaDias) {
-  const fechaAplicacion = new Date().toISOString().split("T")[0];
+  const form = document.getElementById("formEditarMascota");
+  if (form) {
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const nombre = document.getElementById("editNombre").value.trim();
+      const raza = document.getElementById("editRaza").value.trim();
+      const fecha = document.getElementById("editFecha").value;
 
-  db.transaction(function (tx) {
-    tx.executeSql(
-      "INSERT INTO tratamientos (mascota_id, tipo, fecha_aplicacion, frecuencia_dias) VALUES (?, ?, ?, ?)",
-      [idMascota, tipo, fechaAplicacion, frecuenciaDias],
-      function () {
-        alert("Tratamiento agregado correctamente.");
-
-        // 🔍 Bloque de validación en consola
-        db.executeSql("SELECT * FROM tratamientos WHERE mascota_id = ?", [idMascota], function (res) {
-          console.log("Tratamientos encontrados:", res.rows.length);
-          for (let i = 0; i < res.rows.length; i++) {
-            console.log("Tratamiento:", res.rows.item(i));
+      db.transaction(function (tx) {
+        tx.executeSql(
+          "UPDATE mascotas SET nombre = ?, raza = ?, fecha_nacimiento = ? WHERE id = ?",
+          [nombre, raza, fecha, idMascota],
+          function () {
+            console.log("Datos actualizados.");
+            cargarPerfilMascota(idMascota);
           }
-        });
+        );
+      });
+    });
+  }
 
-        cargarTratamientosMascota(idMascota);
-      },
-      function (error) {
-        console.error("Error al agregar tratamiento:", error.message);
+const btnEliminar = document.getElementById("btnEliminarMascota");
+if (btnEliminar) {
+  btnEliminar.addEventListener("click", function () {
+    if (!confirm("¿Eliminar esta mascota y todos sus tratamientos?")) return;
+
+    cancelarNotificacionesMascota(idMascota);
+
+    db.transaction(function (tx) {
+      tx.executeSql("DELETE FROM tratamientos WHERE mascota_id = ?", [idMascota]);
+      tx.executeSql("DELETE FROM mascotas WHERE id = ?", [idMascota], function () {
+        window.location.href = "mismascotas.html";
+      });
+    });
+  });
+}
+
+
+  wireFotoBotones();
+});
+
+// --- Funciones de foto ---
+function wireFotoBotones() {
+  const btnActualizarFoto = document.getElementById("btnActualizarFoto");
+  const btnTomarFoto = document.getElementById("btnTomarFoto");
+  const inputFallback = document.getElementById("inputFotoFallback");
+
+  if (!navigator.camera && inputFallback && btnActualizarFoto) {
+    btnActualizarFoto.addEventListener("click", () => inputFallback.click());
+    inputFallback.addEventListener("change", function () {
+      const file = this.files && this.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const base64 = e.target.result;
+        actualizarFotoPerfil(base64);
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  if (btnActualizarFoto && navigator.camera) {
+    btnActualizarFoto.addEventListener("click", function () {
+      navigator.camera.getPicture(onFotoSuccess, onFotoError, {
+        quality: 60,
+        destinationType: Camera.DestinationType.DATA_URL,
+        sourceType: Camera.PictureSourceType.PHOTOLIBRARY,
+        encodingType: Camera.EncodingType.JPEG,
+        targetWidth: 600,
+        targetHeight: 600,
+        correctOrientation: true
+      });
+    });
+  }
+
+  if (btnTomarFoto && navigator.camera) {
+    btnTomarFoto.addEventListener("click", function () {
+      navigator.camera.getPicture(onFotoSuccess, onFotoError, {
+        quality: 60,
+        destinationType: Camera.DestinationType.DATA_URL,
+        sourceType: Camera.PictureSourceType.CAMERA,
+        encodingType: Camera.EncodingType.JPEG,
+        targetWidth: 600,
+        targetHeight: 600,
+        correctOrientation: true
+      });
+    });
+  }
+}
+
+function onFotoSuccess(imageData) {
+  const imgSrc = normalizarImagen(imageData);
+  if (!imgSrc) return;
+  actualizarFotoPerfil(imgSrc);
+}
+
+function onFotoError(message) {
+  if (message && message !== "No Image Selected") {
+    console.error("Error cámara/galería:", message);
+  }
+}
+
+function normalizarImagen(imageData) {
+  if (typeof imageData !== "string") return null;
+  if (imageData.startsWith("data:image")) return imageData;
+  if (/^[A-Za-z0-9+/]+=*$/.test(imageData.slice(0, 50))) {
+    return "data:image/jpeg;base64," + imageData;
+  }
+  if (imageData.startsWith("file:") || imageData.startsWith("content:")) {
+    return imageData;
+  }
+  return null;
+}
+
+function actualizarFotoPerfil(imgSrc) {
+  const preview = document.getElementById("previewFoto");
+  if (preview) preview.innerHTML = `<img src="${imgSrc}" class="foto-perfil">`;
+
+  const imgPerfil = document.getElementById("imgPerfil");
+  if (imgPerfil) imgPerfil.src = imgSrc;
+
+  db.transaction(function (tx) {
+    tx.executeSql(
+      "UPDATE mascotas SET foto = ? WHERE id = ?",
+      [imgSrc, idMascota],
+      function () {
+        cargarPerfilMascota(idMascota);
       }
     );
   });
 }
 
-function cargarTratamientosMascota(idMascota) {
+// --- Cargar perfil ---
+function cargarPerfilMascota(id) {
+  db.executeSql("SELECT * FROM mascotas WHERE id = ?", [id], function (res) {
+    if (res.rows.length === 0) return;
+    const m = res.rows.item(0);
+    const srcFoto = m.foto && m.foto.length > 0 ? m.foto : "img/default-pet.png";
+
+    document.getElementById("perfilMascota").innerHTML = `
+      <img id="imgPerfil" src="${srcFoto}" alt="${m.nombre}" class="foto-perfil">
+      <p><strong>Nombre:</strong> ${m.nombre}</p>
+      <p><strong>Raza:</strong> ${m.raza}</p>
+      <p><strong>Fecha de nacimiento:</strong> ${m.fecha_nacimiento}</p>
+    `;
+
+    document.getElementById("editNombre").value = m.nombre;
+    document.getElementById("editRaza").value = m.raza;
+    document.getElementById("editFecha").value = m.fecha_nacimiento;
+  });
+}
+
+// --- Cargar tratamientos de la mascota ---
+function cargarTratamientosMascota(id) {
   db.executeSql(
-    "SELECT id, tipo, fecha_aplicacion, frecuencia_dias FROM tratamientos WHERE mascota_id = ? ORDER BY fecha_aplicacion DESC",
-    [idMascota],
+    `SELECT t.id, c.nombre AS tipo, t.fecha_aplicacion, t.frecuencia_dias
+     FROM tratamientos t
+     JOIN catalogo_tratamientos c ON t.catalogo_id = c.id
+     WHERE t.mascota_id = ?
+     ORDER BY t.fecha_aplicacion DESC`,
+    [id],
     function (res) {
-      console.log("Tratamientos cargados:", res.rows.length);
       const lista = document.getElementById("listaTratamientosMascota");
-      if (!lista) return;
       lista.innerHTML = "";
 
       for (let i = 0; i < res.rows.length; i++) {
         const t = res.rows.item(i);
+        const fechaProxima = calcularProximaFecha(t.fecha_aplicacion, t.frecuencia_dias);
         const li = document.createElement("li");
-        li.className = "tratamiento-item";
         li.innerHTML = `
-          <strong>${t.tipo}</strong>
-          <span>Aplicado: ${t.fecha_aplicacion}</span>
-          ${t.frecuencia_dias ? `<span>Frecuencia: ${t.frecuencia_dias} días</span>` : ""}
+          <strong>${t.tipo}</strong><br>
+          Aplicado: <span id="fecha-${t.id}">${t.fecha_aplicacion}</span><br>
+          Próximo: ${fechaProxima}<br>
+          <input type="date" id="inputFecha-${t.id}" value="${t.fecha_aplicacion}" data-id="${t.id}">
+          <button class="btn-eliminar-tratamiento" data-id="${t.id}">🗑️ Eliminar</button>
         `;
         lista.appendChild(li);
       }
-    },
-    function (err) {
-      console.error("Error al cargar tratamientos:", err.message);
+
+      // Auto-guardar nueva fecha al cambiar el input
+      lista.querySelectorAll("input[type='date']").forEach(input => {
+        input.addEventListener("change", () => {
+          const idTratamiento = parseInt(input.dataset.id, 10);
+          const nuevaFecha = input.value;
+          if (!nuevaFecha) return;
+
+          db.transaction(function (tx) {
+            tx.executeSql(
+              "UPDATE tratamientos SET fecha_aplicacion = ? WHERE id = ?",
+              [nuevaFecha, idTratamiento],
+              function () {
+                cargarTratamientosMascota(idMascota);
+              },
+              function (error) {
+                console.error("Error al actualizar fecha:", error.message);
+              }
+            );
+          });
+        });
+      });
+
+      // Eliminar tratamiento sin confirmación modal
+      lista.querySelectorAll(".btn-eliminar-tratamiento").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const idTratamiento = parseInt(btn.dataset.id, 10);
+          if (!idTratamiento) return;
+
+          // Cancelar notificación asociada
+          cancelarNotificacionTratamiento(idTratamiento);
+
+          // Eliminar en BD y refrescar lista
+          db.transaction(function (tx) {
+            tx.executeSql(
+              "DELETE FROM tratamientos WHERE id = ?",
+              [idTratamiento],
+              function () {
+                cargarTratamientosMascota(idMascota);
+              },
+              function (error) {
+                console.error("Error al eliminar tratamiento:", error.message);
+              }
+            );
+          });
+        });
+      });
     }
   );
 }
 
-// --- Inicialización y wiring ---
-document.addEventListener("deviceready", function () {
-  if (!window.db) {
-    console.error("BD no inicializada: incluye js/db.js antes de js/mascota.js");
-    alert("Error de inicialización de BD.");
-    return;
-  }
+// --- Calcular próxima fecha ---
+function calcularProximaFecha(fecha, dias) {
+  if (!dias) return "No definido";
+  const f = new Date(fecha);
+  f.setDate(f.getDate() + dias);
+  return f.toISOString().split("T")[0];
+}
 
-  const params = new URLSearchParams(window.location.search);
-  const mascotaId = params.get("id");
+// --- Cancelar notificación de tratamiento ---
+function cancelarNotificacionTratamiento(tratamientoId) {
+  if (!cordova.plugins || !cordova.plugins.notification) return;
+  // Debe coincidir con el esquema usado al programar notificaciones (2000 + idTratamiento)
+  cordova.plugins.notification.local.cancel(2000 + tratamientoId);
+}
 
-  if (mascotaId) {
-    cargarMascota(mascotaId);
+// --- Cancelar todas las notificaciones de una mascota ---
+function cancelarNotificacionesMascota(mascotaId) {
+  if (!cordova.plugins || !cordova.plugins.notification) return;
 
-    const btnActualizar = document.getElementById("btnActualizarFoto");
-    if (btnActualizar) {
-      btnActualizar.addEventListener("click", function () {
-        actualizarFoto(mascotaId);
-      });
+  // Cancelar cumpleaños (1000 + idMascota)
+  cordova.plugins.notification.local.cancel(1000 + mascotaId);
+
+  // Cancelar notificaciones de todos los tratamientos de la mascota
+  db.executeSql("SELECT id FROM tratamientos WHERE mascota_id = ?", [mascotaId], function (res) {
+    for (let i = 0; i < res.rows.length; i++) {
+      const t = res.rows.item(i);
+      cordova.plugins.notification.local.cancel(2000 + t.id);
     }
-
-    const form = document.getElementById("formEditarMascota");
-    if (form) {
-      form.addEventListener("submit", function (e) {
-        e.preventDefault();
-        guardarCambios(mascotaId);
-      });
-    }
-
-    const btnBravecto = document.getElementById("btnBravecto");
-    if (btnBravecto) {
-      btnBravecto.addEventListener("click", function () {
-        agregarTratamiento(mascotaId, "Bravecto (3 meses)", 90);
-      });
-    }
-  }
-});
+  });
+}

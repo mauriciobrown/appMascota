@@ -54,8 +54,15 @@
   </ul>
 </nav>
 
-  <footer>
-     <p>&copy; 2025 Registro Mascotas</p>
-  </footer>
+<footer>
+  <p>&copy; 2025 Registro Mascotas</p>
+  <p id="versionInfo"></p>
+</footer>
+
+<script type="module">
+  import AppVersion from "./js/version.js";
+  document.getElementById("versionInfo").textContent =
+    `Versión ${AppVersion.version} (${AppVersion.fecha})`;
+</script>
 </body>
 </html>
