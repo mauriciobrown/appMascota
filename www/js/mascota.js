@@ -96,7 +96,8 @@ document.addEventListener("deviceready", function () {
 // ----------------------------------------------------------------------
 // --- 3. Lógica de Creación de Nueva Mascota (Formulario en perfil.html) ---
 // ----------------------------------------------------------------------
-const formCreacion = document.getElementById("formMascota"); // Asumiendo ID 'formMascota' en perfil.html
+
+const formCreacion = document.getElementById("formMascota"); 
 if (formCreacion) {
     formCreacion.addEventListener("submit", function (e) {
         e.preventDefault();
@@ -114,10 +115,46 @@ if (formCreacion) {
                 "INSERT INTO mascotas (nombre, raza, fecha_nacimiento, foto) VALUES (?, ?, ?, ?)",
                 [nombre, raza, fecha, null], 
                 function (tx, res) {
-                    console.log("✅ Nueva mascota registrada con ID: " + res.insertId);
+                    const insertId = res.insertId;
+                    console.log("✅ Mascota insertada con ID:", insertId);
+
+                    // --- Crear evento de cumpleaños ---
+                    if (typeof cordova !== "undefined" && cordova.plugins && cordova.plugins.calendar) {
+                        cordova.plugins.calendar.requestReadWritePermission(
+                            function() {
+                                const fechaInicio = new Date(fecha + "T09:00:00");
+                                const fechaFin = new Date(fechaInicio.getTime() + 60*60*1000);
+
+                                cordova.plugins.calendar.createEvent(
+                                    `🎂 Cumpleaños de ${nombre}`,
+                                    "",
+                                    "Recordatorio anual",
+                                    fechaInicio,
+                                    fechaFin,
+                                    function(eventId) {
+                                        console.log("✅ Evento de cumpleaños creado:", eventId);
+
+                                        // Guardar el eventId en la DB usando insertId
+                                        db.transaction(function(tx2){
+                                            tx2.executeSql(
+                                                "UPDATE mascotas SET calendar_event_id_birthday = ? WHERE id = ?",
+                                                [eventId, insertId]
+                                            );
+                                        });
+                                    },
+                                    function(err) {
+                                        console.error("❌ Error creando evento de cumpleaños:", err);
+                                    }
+                                );
+                            },
+                            function(err) {
+                                console.error("❌ Permiso calendario denegado:", err);
+                            }
+                        );
+                    }
+
                     alert("Mascota registrada exitosamente!");
                     formCreacion.reset();
-                    // Redirigir a la lista de mascotas para ver el registro
                     window.location.href = "mismascotas.html"; 
                 },
                 function (txError, error) {
@@ -127,6 +164,8 @@ if (formCreacion) {
         });
     });
 }
+
+
 
 // ----------------------------------------------------------------------
 // --- 4. Lógica de Edición de Mascota (Formulario en mascota
@@ -540,4 +579,36 @@ function cancelarEventosTratamientosMascota(mascotaId) {
             });
         });
     });
+}
+
+
+// --- Crear evento de cumpleaños recurrente ---
+function crearEventoCumpleanos(nombreMascota, fechaNacimiento, insertId) {
+    if (!fechaNacimiento) return;
+
+    // Hora fija para el recordatorio (ej: 9 AM)
+    const fechaInicio = new Date(fechaNacimiento + "T09:00:00");
+    const fechaFin = new Date(fechaInicio.getTime() + 60*60*1000); // +1 hora
+
+    if (typeof crearEventoCalendario !== 'function') {
+        console.warn("⚠️ crearEventoCalendario no está definido. Evento de cumpleaños no se creará.");
+        return;
+    }
+
+    crearEventoCalendario(
+        `🎂 Cumpleaños de ${nombreMascota}`,
+        `Feliz cumpleaños a ${nombreMascota}!`,
+        fechaInicio,
+        fechaFin,
+        'YEARLY',  // recurrencia anual exacta
+        1
+    ).then(eventId => {
+        db.transaction(function(tx){
+            tx.executeSql(
+                "UPDATE mascotas SET calendar_event_id_birthday = ? WHERE id = ?",
+                [eventId, insertId]
+            );
+        });
+        console.log(`✅ Evento de cumpleaños creado para ${nombreMascota} (ID evento: ${eventId})`);
+    }).catch(err => console.error("❌ Error creando evento cumpleaños:", err));
 }
