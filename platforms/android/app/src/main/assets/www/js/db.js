@@ -41,20 +41,23 @@ document.addEventListener('deviceready', function () {
         );
 
         // --- 3. Asignaciones de tratamientos ---
-        tx.executeSql(
-            "CREATE TABLE IF NOT EXISTS tratamientos (" +
-            "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-            "mascota_id INTEGER NOT NULL, " + // No puede haber tratamiento sin mascota
-            "catalogo_id INTEGER NOT NULL, " + // No puede haber tratamiento sin tipo
-            "fecha_aplicacion TEXT NOT NULL, " +
-            "frecuencia_dias INTEGER, " +
-            "calendar_event_id TEXT, " + 
-            "FOREIGN KEY (mascota_id) REFERENCES mascotas(id) ON DELETE CASCADE, " + // Añadir ON DELETE CASCADE
-            "FOREIGN KEY (catalogo_id) REFERENCES catalogo_tratamientos(id))",
-            [],
-            null,
-            errorHandler
-        );
+ tx.executeSql(
+    "CREATE TABLE IF NOT EXISTS tratamientos (" +
+    "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+    "mascota_id INTEGER NOT NULL, " +
+    "catalogo_id INTEGER NOT NULL, " +
+    "fecha_aplicacion TEXT NOT NULL, " +
+    "frecuencia_dias INTEGER, " +
+    "fecha_proxima TEXT NOT NULL, " +
+    "calendar_event_id TEXT, " +
+    "FOREIGN KEY (mascota_id) REFERENCES mascotas(id) ON DELETE CASCADE, " +
+    "FOREIGN KEY (catalogo_id) REFERENCES catalogo_tratamientos(id)" +
+    ")",
+    [],
+    null,
+    errorHandler
+);
+
         
         // --- 4. Seed inicial del catálogo (USO DE TX PARA TODAS LAS CONSULTAS DE SEEDING) ---
         tx.executeSql("SELECT COUNT(*) AS total FROM catalogo_tratamientos", [], function (tx, res) {

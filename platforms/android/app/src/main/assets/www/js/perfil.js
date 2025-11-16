@@ -17,31 +17,28 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
-
 // --- Al iniciar Cordova (deviceready) ---
 document.addEventListener("deviceready", function () {
     console.log("Cordova listo y plugins cargados.");
 
-    // Solicitar permisos (Dejamos esta parte para asegurar que se ejecute)
+    // Solicitar permisos
     cordova.plugins.permissions.requestPermissions([
         cordova.plugins.permissions.CAMERA,
         cordova.plugins.permissions.READ_EXTERNAL_STORAGE,
         cordova.plugins.permissions.WRITE_EXTERNAL_STORAGE
     ]);
 
-    // **IMPORTANTE: LA INICIALIZACIÓN DE 'db' Y LAS TABLAS ESTÁ EN db.js**
-    // Solo re-abrimos o accedemos a la instancia que ya creó db.js
+    // Inicialización de la DB
     if (!db) {
-         db = window.sqlitePlugin.openDatabase({ name: "petcare.db", location: "default" });
+        db = window.sqlitePlugin.openDatabase({ name: "petcare.db", location: "default" });
     }
     
-    // 1. Manejador del Formulario de Guardado (formMascota)
+    // --- 1. Manejador del Formulario de Guardado (formMascota) ---
     const form = document.getElementById("formMascota");
     if (form) {
         form.addEventListener("submit", function (e) {
             e.preventDefault();
 
-            // Los checks de validación
             const nombre = document.getElementById("nombre").value.trim();
             const raza = document.getElementById("raza").value.trim();
             const fechaNacimiento = document.getElementById("fechaNacimiento").value;
@@ -51,8 +48,7 @@ document.addEventListener("deviceready", function () {
                 return;
             }
 
-            // Lógica de DB
-            // Usamos un simple executeSql para el COUNT
+            // Contar mascotas existentes
             db.executeSql("SELECT COUNT(*) AS total FROM mascotas", [], function (res) {
                 const total = res.rows.item(0).total;
                 if (total >= 5) {
@@ -60,33 +56,20 @@ document.addEventListener("deviceready", function () {
                     return;
                 }
 
-                // Insertar mascota dentro de una transacción
-                db.transaction(function (tx) {
-                    tx.executeSql(
-                        "INSERT INTO mascotas (nombre, raza, fecha_nacimiento, foto) VALUES (?, ?, ?, ?)",
-                        [nombre, raza, fechaNacimiento, fotoRuta],
-                        function (tx, res) {
-                            console.log("✅ Mascota insertada con ID:", res.insertId);
-                            alert("Mascota guardada correctamente.");
-                            form.reset();
-                            const preview = document.getElementById("previewFoto");
-                            if (preview) preview.innerHTML = "";
-                            fotoRuta = null;
-                            cargarMascotas(); // refrescar lista
-                        },
-                        function (tx, error) {
-                            console.error("❌ Error al guardar mascota:", error.message);
-                            alert("No se pudo guardar la mascota.");
-                        }
-                    );
+                // Registrar mascota usando la función con cumpleaños
+                registrarMascotaConCumple(nombre, raza, fechaNacimiento, fotoRuta, function(insertId){
+                    alert("Mascota registrada correctamente!");
+                    form.reset();
+                    const preview = document.getElementById("previewFoto");
+                    if(preview) preview.innerHTML = "";
+                    fotoRuta = null;
+                    cargarMascotas(); // refresca la lista
                 });
-            }, function (error) {
-                console.error("❌ Error al contar mascotas:", error.message);
             });
         });
     }
 
-    // 2. Lógica de Eliminación de Mascota (Consolidada)
+    // --- 2. Lógica de Eliminación de Mascota ---
     const btnEliminar = document.getElementById("btnEliminarMascota");
     if (btnEliminar) {
         btnEliminar.addEventListener("click", function () {
@@ -95,16 +78,12 @@ document.addEventListener("deviceready", function () {
                 alert("No se encontró el ID de la mascota.");
                 return;
             }
-
             if (!confirm("¿Eliminar esta mascota y todos sus tratamientos?")) return;
 
             db.transaction(function (tx) {
-                // Primero eliminar tratamientos asociados
                 tx.executeSql("DELETE FROM tratamientos WHERE mascota_id = ?", [mascotaId], function () {
                     console.log("🧹 Tratamientos eliminados para mascota:", mascotaId);
                 });
-
-                // Luego eliminar la mascota
                 tx.executeSql("DELETE FROM mascotas WHERE id = ?", [mascotaId], function () {
                     console.log("✅ Mascota eliminada:", mascotaId);
                     alert("Mascota eliminada correctamente.");
@@ -117,17 +96,17 @@ document.addEventListener("deviceready", function () {
         });
     }
 
-    // 3. Cargar la lista de mascotas al iniciar (para mismascota.html)
+    // --- 3. Cargar la lista de mascotas al iniciar ---
     cargarMascotas();
 
-    // 4. Cargar perfil/tratamientos si estamos en perfil.html
+    // --- 4. Cargar perfil/tratamientos si estamos en perfil.html ---
     if (window.mascotaIdActual) {
         console.log("🐶 Cargando perfil/tratamientos después de deviceready.");
         cargarPerfilMascota(window.mascotaIdActual);
         cargarTratamientos(window.mascotaIdActual);
     }
 
-}, false); // FIN ÚNICO DE DEVICEREADY
+}, false); // FIN DEVICEREADY
 
 // --- Utilidad para convertir rutas a algo que el WebView acepte ---
 function urlParaWebView(ruta) {
@@ -138,7 +117,7 @@ function urlParaWebView(ruta) {
     return ruta;
 }
 
-// --- Captura de foto y copia a ruta accesible ---
+// --- Captura de foto ---
 function capturarFoto() {
     navigator.camera.getPicture(function (imageURI) {
         console.log("Ruta original:", imageURI);
@@ -186,21 +165,16 @@ function capturarFoto() {
     });
 }
 
-// --- Mostrar mascotas registradas (para mismascota.html) ---
+// --- Mostrar mascotas registradas ---
 function cargarMascotas() {
-    // Si 'db' es null al inicio, simplemente salimos. deviceready la llamará cuando esté listo.
     if (!db) return; 
-
     db.executeSql("SELECT * FROM mascotas", [], function (tx, res) {
         const lista = document.getElementById("listaMascotas");
         if (!lista) return;
 
         lista.innerHTML = "";
-
         for (let i = 0; i < res.rows.length; i++) {
             const m = res.rows.item(i);
-            console.log("Ruta recuperada desde BD:", m.foto);
-
             const src = urlParaWebView(m.foto);
             const tieneFoto = src && src.length > 10;
 
@@ -209,9 +183,7 @@ function cargarMascotas() {
 
             item.innerHTML = `
                 <div class="perfil-contenedor">
-                    ${tieneFoto
-                        ? `<img src="${src}" class="foto-perfil">`
-                        : `<div class="foto-perfil sin-foto"></div>`}
+                    ${tieneFoto ? `<img src="${src}" class="foto-perfil">` : `<div class="foto-perfil sin-foto"></div>`}
                     <strong>${m.nombre}</strong><br>
                     ${m.raza} - Nacido: ${m.fecha_nacimiento}<br>
                     <a href="perfil.html?id=${m.id}">
@@ -224,12 +196,9 @@ function cargarMascotas() {
     });
 }
 
-
-// --- Cargar perfil de mascota (depende de 'db') ---
+// --- Cargar perfil de mascota ---
 function cargarPerfilMascota(mascotaId) {
-    // Ya no necesitamos el setTimeout, porque se llama desde deviceready.
     if (!db) return;
-    
     const contenedor = document.getElementById("perfilMascota");
     if (!contenedor) return;
 
@@ -251,12 +220,9 @@ function cargarPerfilMascota(mascotaId) {
     });
 }
 
-
-// --- Cargar tratamientos asociados (depende de 'db') ---
+// --- Cargar tratamientos asociados ---
 function cargarTratamientos(mascotaId) {
-    // Ya no necesitamos el setTimeout, porque se llama desde deviceready.
     if (!db) return;
-    
     db.executeSql("SELECT * FROM tratamientos WHERE mascota_id = ?", [mascotaId], function (tx, res) {
         const lista = document.getElementById("listaTratamientos");
         if (!lista) return;
@@ -266,14 +232,10 @@ function cargarTratamientos(mascotaId) {
         
         for (let i = 0; i < res.rows.length; i++) {
             const t = res.rows.item(i);
-            // NOTA: EL INSERT EN LA FUNCIÓN DE GUARDADO USA 'nombre', 'fecha' y 'dosis'
-            // Sin embargo, la tabla 'tratamientos' que creamos en db.js usa 'catalogo_id', 'fecha_aplicacion', y 'frecuencia_dias'.
-            // Es probable que necesites corregir el INSERT, pero por ahora mantendremos el código de carga.
             tratamientos.push(t);
 
             const item = document.createElement("li");
             item.classList.add("tarjeta-tratamiento");
-            
             item.innerHTML = `
                 <strong>${t.nombre || 'Tratamiento sin nombre'}</strong><br>
                 Fecha: ${t.fecha_aplicacion || 'N/A'} - Dosis/Frecuencia: ${t.frecuencia_dias || 'N/A'}
@@ -285,3 +247,53 @@ function cargarTratamientos(mascotaId) {
         console.error("Error al cargar tratamientos:", error);
     });
 }
+
+// --- Registrar mascota con cumpleaños ---
+// --- Registrar mascota con cumpleaños ---
+function registrarMascotaConCumple(nombre, raza, fechaNacimiento, fotoRuta, callback) {
+    if (!nombre || !raza || !fechaNacimiento) {
+        alert("Completa todos los campos de la mascota.");
+        return;
+    }
+
+    db.transaction(function (tx) {
+        tx.executeSql(
+            "INSERT INTO mascotas (nombre, raza, fecha_nacimiento, foto) VALUES (?, ?, ?, ?)",
+            [nombre, raza, fechaNacimiento, fotoRuta],
+            function (tx, res) {
+                const insertId = res.insertId;
+                console.log("✅ Mascota insertada con ID:", insertId);
+
+                // --- Crear evento de cumpleaños en el calendario ---
+                if (typeof crearEventoCalendario === 'function') {
+                    const inicio = new Date(fechaNacimiento + "T12:00:00");
+                    const fin = new Date(inicio.getTime() + 60*60*1000); // +1 hora
+
+                    crearEventoCalendario(
+                        `🎂 Cumpleaños de ${nombre}`,
+                        `Feliz cumpleaños a ${nombre}!`,
+                        inicio,
+                        fin,
+                        'YEARLY',
+                        1
+                    ).then(eventId => {
+                        // Guardar eventId en la DB
+                        db.transaction(function(tx2){
+                            tx2.executeSql(
+                                "UPDATE mascotas SET calendar_event_id_birthday = ? WHERE id = ?",
+                                [eventId, insertId]
+                            );
+                        });
+                        console.log(`✅ Evento de cumpleaños creado para ${nombre} (ID evento: ${eventId})`);
+                    }).catch(err => console.error("❌ Error creando evento cumpleaños:", err));
+                }
+
+                if (callback) callback(insertId);
+            },
+            function (txError, error) {
+                console.error("❌ Error al registrar mascota:", error.message);
+            }
+        );
+    });
+}
+
