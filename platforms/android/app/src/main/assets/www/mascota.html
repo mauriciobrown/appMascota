@@ -1,72 +1,74 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>Perfil de Mascota</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="css/style.css">
-</head>
-<body>
-  <header class="encabezado">
-    <img src="img/dog-icon.svg" alt="Mascota" class="icono">
-    <h1>Perfil de Mascota</h1>
-  </header>
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Perfil de Mascota</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/style.css">
+  </head>
+  <body>
+    <header class="encabezado">
+      <img src="img/dog-icon.svg" alt="Mascota" class="icono">
+      <h1>Perfil de Mascota</h1>
+    </header>
 
-  <main>
-    <!-- Perfil cargado dinámicamente -->
-    <section id="perfilMascota" class="tarjeta-mascota"></section>
+    <main>
+      <!-- Perfil cargado dinámicamente -->
+      <section id="perfilMascota" class="tarjeta-mascota"></section>
 
-    <!-- Sección de edición -->
-    <section>
-      <h3>Editar Mascota</h3>
-      <form id="formEditarMascota">
-        <input type="text" id="editNombre" placeholder="Nombre" required><br>
-        <input type="text" id="editRaza" placeholder="Raza" required><br>
-        <input type="date" id="editFecha" required><br>
+      <!-- Sección de edición -->
+      <section>
+        <h3>Editar Mascota</h3>
+        <form id="formEditarMascota">
+          <input type="text" id="editNombre" placeholder="Nombre" required><br>
+          <input type="text" id="editRaza" placeholder="Raza" required><br>
+          <input type="date" id="editFecha" required><br>
 
-        <!-- Botón para actualizar foto -->
-         <input type="file" id="inputFotoFallback" accept="image/*" style="display:none;">
- <!-- 
-        <button type="button" id="btnActualizarFoto">Actualizar Foto</button>
-        -->
-        <button type="button" id="btnTomarFoto">Actualizar Foto</button>
-          <!--      <div id="previewFoto"></div>
--->
+          <!-- Botón para actualizar foto -->
+          <input type="file" id="inputFotoFallback" accept="image/*" style="display:none;">
+  <!-- 
+          <button type="button" id="btnActualizarFoto">Actualizar Foto</button>
+          -->
+          <button type="button" id="btnTomarFoto">Actualizar Foto</button>
+            <!--      <div id="previewFoto"></div>
+  -->
 
-        <button type="submit">Guardar Cambios</button>
-        <button type="button" id="btnEliminarMascota" class="btn-peligro">🗑️ Eliminar Mascota</button>
-      </form>
-    </section>
+          <button type="submit">Guardar Cambios</button>
+          <button type="button" id="btnEliminarMascota" class="btn-peligro">🗑️ Eliminar Mascota</button>
+        </form>
+      </section>
 
-    <!-- Sección de tratamientos -->
-    <section>
-      <h3>Tratamientos Aplicados</h3>
-      <ul id="listaTratamientosMascota"></ul>
-    </section>
-  </main>
+      <!-- Sección de tratamientos -->
+      <section>
+        <h3>Tratamientos Aplicados</h3>
+        <ul id="listaTratamientosMascota"></ul>
+      </section>
+    </main>
 
-  <script src="cordova.js"></script>
-  <script src="js/db.js"></script>
-  <script src="js/mascota.js"></script>
+    <script src="cordova.js"></script>
+    <script src="js/db.js"></script>
+    <script src="js/calendar.js"></script>
+    <script src="js/mascota.js"></script>
 
-  <nav class="menu-principal">
-    <ul>
-      <li><a href="index.html">🏠 Inicio</a></li>
-      <li><a href="mismascotas.html">🐾 Mis Mascotas</a></li>
-      <li><a href="tratamientos.html">💊 Tratamientos</a></li>
-      <li><a href="mantenedor_tratamientos.html">🛠️ Mantenedor</a></li>
-    </ul>
-  </nav>
 
-<footer>
-  <p>&copy; 2025 Registro Mascotas</p>
-  <p id="versionInfo"></p>
-</footer>
+    <nav class="menu-principal">
+      <ul>
+        <li><a href="index.html">🏠 Inicio</a></li>
+        <li><a href="mismascotas.html">🐾 Mis Mascotas</a></li>
+        <li><a href="tratamientos.html">💊 Tratamientos</a></li>
+        <li><a href="mantenedor_tratamientos.html">🛠️ Mantenedor</a></li>
+      </ul>
+    </nav>
 
-<script type="module">
-  import AppVersion from "./js/version.js";
-  document.getElementById("versionInfo").textContent =
-    `Versión ${AppVersion.version} (${AppVersion.fecha})`;
-</script>
-</body>
-</html>
+  <footer>
+    <p>&copy; 2025 Registro Mascotas</p>
+    <p id="versionInfo"></p>
+  </footer>
+
+  <script type="module">
+    import AppVersion from "./js/version.js";
+    document.getElementById("versionInfo").textContent =
+      `Versión ${AppVersion.version} (${AppVersion.fecha})`;
+  </script>
+  </body>
+  </html>

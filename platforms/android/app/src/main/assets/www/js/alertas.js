@@ -3,22 +3,6 @@ var db = null;
 document.addEventListener("deviceready", function () {
   db = window.sqlitePlugin.openDatabase({ name: "petcare.db", location: "default" });
 
-  // Botón de prueba de alerta
-  const btnTest = document.getElementById("btnTestAlerta");
-  if (btnTest) {
-    btnTest.addEventListener("click", function () {
-      setTimeout(() => {
-        cordova.plugins.notification.local.schedule({
-          id: 9999,
-          title: "🔔 Prueba de Alerta",
-          text: "Esta es una notificación de prueba.",
-          trigger: { in: 5 }
-        });
-        console.log("Notificación de prueba programada.");
-      }, 500);
-    });
-  }
-
   // Cargar cumpleaños de mascotas
   cargarAlertasCumple();
 
@@ -37,17 +21,30 @@ function cargarAlertasCumple() {
 
     for (let i = 0; i < res.rows.length; i++) {
       const m = res.rows.item(i);
-      const cumple = m.fecha_nacimiento;
-      const fechaMascota = cumple.slice(5);
+      if (!m.fecha_nacimiento) continue;
+
+      const fechaMascota = m.fecha_nacimiento.slice(5);
 
       if (fechaHoy === fechaMascota) {
         const li = document.createElement("li");
         li.textContent = `🎉 Hoy es el cumpleaños de ${m.nombre}`;
         lista.appendChild(li);
+
+        // Programar notificación sonora inmediata
+        if (cordova.plugins && cordova.plugins.notification) {
+          cordova.plugins.notification.local.schedule({
+            id: 1000 + m.id,
+            title: `🎉 Cumpleaños de ${m.nombre}`,
+            text: "Hoy es el cumpleaños de tu mascota.",
+            trigger: { in: 1 },
+            sound: null
+          });
+        }
       }
     }
   });
 }
+
 // --- Tratamientos próximos ---
 function cargarAlertasTratamientos() {
   db.executeSql(
@@ -67,15 +64,30 @@ function cargarAlertasTratamientos() {
         if (!t.frecuencia_dias) continue;
 
         const fechaAplicacion = new Date(t.fecha_aplicacion);
+        if (isNaN(fechaAplicacion.getTime())) continue;
+
         const proxima = new Date(fechaAplicacion);
         proxima.setDate(proxima.getDate() + t.frecuencia_dias);
 
-        // Mostrar alerta si la próxima fecha es hoy o dentro de los próximos 10 días
-        const diff = (proxima - hoy) / (1000 * 60 * 60 * 24);
-        if (diff >= 0 && diff <= 10) {
+        const diffDias = (proxima - hoy) / (1000 * 60 * 60 * 24);
+        const proximaISO = proxima.toISOString().split("T")[0];
+
+        // Mostrar en lista si es hoy o dentro de los próximos 10 días
+        if (diffDias >= 0 && diffDias <= 10) {
           const li = document.createElement("li");
-          li.textContent = `💊 ${t.tipo} para ${t.mascota} el ${proxima.toISOString().split("T")[0]}`;
+          li.textContent = `💊 ${t.tipo} para ${t.mascota} el ${proximaISO}`;
           lista.appendChild(li);
+
+          // Programar notificación sonora
+          if (cordova.plugins && cordova.plugins.notification) {
+            cordova.plugins.notification.local.schedule({
+              id: 2000 + t.id,
+              title: `💊 ${t.tipo} para ${t.mascota}`,
+              text: `Tratamiento programado para ${proximaISO}`,
+              trigger: { at: new Date(proxima.getFullYear(), proxima.getMonth(), proxima.getDate(), 9, 0, 0) },
+              sound: null
+            });
+          }
         }
       }
     }

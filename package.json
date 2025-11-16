@@ -15,11 +15,14 @@
   "devDependencies": {
     "cordova-android": "^14.0.1",
     "cordova-plugin-android-permissions": "^1.1.5",
+    "cordova-plugin-androidx-adapter": "^1.1.3",
+    "cordova-plugin-calendar": "^5.1.6",
     "cordova-plugin-dialogs": "^2.0.2",
     "cordova-plugin-file": "^8.1.3",
-    "cordova-plugin-local-notification": "github:katzer/cordova-plugin-local-notifications",
     "cordova-plugin-splashscreen": "^6.0.1",
-    "cordova-sqlite-storage": "github:xpbrew/cordova-sqlite-storage"
+    "cordova-sqlite-storage": "github:xpbrew/cordova-sqlite-storage",
+    "cordova.plugins.diagnostic": "^7.2.7",
+    "de.appplant.cordova.plugin.local-notification": "^0.8.5"
   },
   "cordova": {
     "platforms": [
@@ -32,8 +35,14 @@
       "cordova-plugin-file": {},
       "cordova-plugin-android-permissions": {},
       "cordova-plugin-dialogs": {},
-      "cordova-plugin-local-notification": {},
-      "cordova-plugin-splashscreen": {}
+      "cordova-plugin-splashscreen": {},
+      "cordova-plugin-calendar": {},
+      "cordova.plugins.diagnostic": {
+        "ANDROIDX_VERSION": "1.0.0",
+        "ANDROIDX_APPCOMPAT_VERSION": "1.3.1"
+      },
+      "cordova-plugin-androidx-adapter": {},
+      "de.appplant.cordova.plugin.local-notification": {}
     }
   }
 }
